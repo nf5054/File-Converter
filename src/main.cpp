@@ -669,6 +669,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
     GetModuleFileNameW(nullptr, exeBuffer, MAX_PATH);
     g_exePath = exeBuffer;
 
+    fs::path exeDir = fs::path(g_exePath).parent_path();
+    SetCurrentDirectoryW(exeDir.c_str());
+
     int argc = 0;
     LPWSTR* argv = CommandLineToArgvW(pCmdLine, &argc);
     if (argv && argc > 0) {
@@ -739,7 +742,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
     ShowWindow(g_hwnd, nCmdShow);
     UpdateWindow(g_hwnd);
 
-    fs::path exeDir = fs::path(g_exePath).parent_path();
     fs::path loaderDll = exeDir / L"WebView2Loader.dll";
 
     HMODULE hLoader = LoadLibraryW(loaderDll.c_str());
