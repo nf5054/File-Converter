@@ -27,7 +27,7 @@ OmniConvert is a desktop file transformation application designed to provide fas
 ![Settings Page](assets/screenshots/screenshot_settings.png)
 
 ### Light Theme Interface
-![Light Theme](assets/screenshots/screenshot_light.png)
+![Light Theme](assets/screenshots/screenshot_light_v2.png)
 
 ---
 
