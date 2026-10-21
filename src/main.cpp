@@ -139,6 +139,27 @@ static std::wstring g_startupFile;
 // Thread-safe dispatch to WebView2 via Windows message queue
 static void PostMessageToFrontend(const std::string& json);
 
+static std::string EscapeJsonString(const std::string& input) {
+    std::ostringstream ss;
+    for (char c : input) {
+        if (c == '\\') ss << "\\\\";
+        else if (c == '"') ss << "\\\"";
+        else if (c == '\b') ss << "\\b";
+        else if (c == '\f') ss << "\\f";
+        else if (c == '\n') ss << "\\n";
+        else if (c == '\r') ss << "\\r";
+        else if (c == '\t') ss << "\\t";
+        else if ((unsigned char)c < 0x20) {
+            ss << "\\u00";
+            const char hex[] = "0123456789abcdef";
+            ss << hex[(c >> 4) & 0x0f] << hex[c & 0x0f];
+        } else {
+            ss << c;
+        }
+    }
+    return ss.str();
+}
+
 // ---------------- Native OLE Drop Target ----------------
 class DropTarget : public IDropTarget {
     LONG m_ref = 1;
@@ -160,87 +181,57 @@ public:
         return r;
     }
     HRESULT STDMETHODCALLTYPE DragEnter(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) override {
-        if (!pdwEffect) return E_POINTER;
-        FORMATETC fmt = { CF_HDROP, nullptr, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
-        if (pDataObj && SUCCEEDED(pDataObj->QueryGetData(&fmt))) {
-            *pdwEffect = DROPEFFECT_COPY;
-        } else {
-            *pdwEffect = DROPEFFECT_NONE;
-        }
+        if (pdwEffect) *pdwEffect = DROPEFFECT_COPY;
         return S_OK;
     }
     HRESULT STDMETHODCALLTYPE DragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) override {
-        if (!pdwEffect) return E_POINTER;
-        *pdwEffect = DROPEFFECT_COPY;
+        if (pdwEffect) *pdwEffect = DROPEFFECT_COPY;
         return S_OK;
     }
     HRESULT STDMETHODCALLTYPE DragLeave() override {
         return S_OK;
     }
     HRESULT STDMETHODCALLTYPE Drop(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) override {
-        if (!pdwEffect) return E_POINTER;
-        *pdwEffect = DROPEFFECT_COPY;
-
+        if (pdwEffect) *pdwEffect = DROPEFFECT_COPY;
         if (!pDataObj) return S_OK;
 
         FORMATETC fmt = { CF_HDROP, nullptr, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
         STGMEDIUM stg;
         if (SUCCEEDED(pDataObj->GetData(&fmt, &stg))) {
-            HDROP hDrop = static_cast<HDROP>(stg.hGlobal);
-            UINT fileCount = DragQueryFileW(hDrop, 0xFFFFFFFF, nullptr, 0);
-            std::vector<fs::path> files;
-            for (UINT i = 0; i < fileCount; ++i) {
-                wchar_t filePath[MAX_PATH];
-                if (DragQueryFileW(hDrop, i, filePath, MAX_PATH) > 0) {
-                    files.push_back(filePath);
+            HDROP hDrop = static_cast<HDROP>(GlobalLock(stg.hGlobal));
+            if (hDrop) {
+                UINT fileCount = DragQueryFileW(hDrop, 0xFFFFFFFF, nullptr, 0);
+                std::vector<fs::path> files;
+                for (UINT i = 0; i < fileCount; ++i) {
+                    wchar_t filePath[MAX_PATH];
+                    if (DragQueryFileW(hDrop, i, filePath, MAX_PATH) > 0) {
+                        files.push_back(filePath);
+                    }
+                }
+                GlobalUnlock(stg.hGlobal);
+
+                if (!files.empty()) {
+                    std::ostringstream json;
+                    json << "{\"action\":\"filesSelected\",\"files\":[";
+                    for (size_t i = 0; i < files.size(); ++i) {
+                        std::string u8Path = ConverterEngine::WideToUtf8(files[i].wstring());
+                        std::string u8Name = ConverterEngine::WideToUtf8(files[i].filename().wstring());
+                        uintmax_t sz = 0;
+                        try { if (fs::exists(files[i])) sz = fs::file_size(files[i]); } catch (...) {}
+                        json << "{\"name\":\"" << EscapeJsonString(u8Name) << "\",\"path\":\"" << EscapeJsonString(u8Path) << "\",\"size\":" << sz << "}";
+                        if (i + 1 < files.size()) json << ",";
+                    }
+                    json << "]}";
+                    PostMessageToFrontend(json.str());
                 }
             }
             ReleaseStgMedium(&stg);
-
-            if (!files.empty()) {
-                std::ostringstream json;
-                json << "{\"action\":\"filesSelected\",\"files\":[";
-                for (size_t i = 0; i < files.size(); ++i) {
-                    std::string u8Path = ConverterEngine::WideToUtf8(files[i].wstring());
-                    std::string u8Name = ConverterEngine::WideToUtf8(files[i].filename().wstring());
-                    uintmax_t sz = 0;
-                    try { sz = fs::file_size(files[i]); } catch (...) {}
-                    // Escape json
-                    std::string escapedName;
-                    for (char c : u8Name) {
-                        if (c == '\\') escapedName += "\\\\";
-                        else if (c == '"') escapedName += "\\\"";
-                        else escapedName += c;
-                    }
-                    std::string escapedPath;
-                    for (char c : u8Path) {
-                        if (c == '\\') escapedPath += "\\\\";
-                        else if (c == '"') escapedPath += "\\\"";
-                        else escapedPath += c;
-                    }
-                    json << "{\"name\":\"" << escapedName << "\",\"path\":\"" << escapedPath << "\",\"size\":" << sz << "}";
-                    if (i + 1 < files.size()) json << ",";
-                }
-                json << "]}";
-                PostMessageToFrontend(json.str());
-            }
         }
         return S_OK;
     }
 };
 
 static DropTarget* g_dropTarget = nullptr;
-
-static void RegisterDropTargetRecursively(HWND hwnd) {
-    if (!hwnd || !g_dropTarget) return;
-    RevokeDragDrop(hwnd);
-    RegisterDragDrop(hwnd, g_dropTarget);
-    EnumChildWindows(hwnd, [](HWND child, LPARAM lp) -> BOOL {
-        RevokeDragDrop(child);
-        RegisterDragDrop(child, reinterpret_cast<IDropTarget*>(lp));
-        return TRUE;
-    }, reinterpret_cast<LPARAM>(g_dropTarget));
-}
 
 // ---------------- Native Windows Explorer Item Selection ----------------
 static void ShowInExplorerNative(const std::wstring& rawPath) {
@@ -277,27 +268,6 @@ typedef HRESULT(STDAPICALLTYPE* CreateCoreWebView2EnvironmentWithOptionsFunc)(
     PCWSTR userDataFolder,
     ICoreWebView2EnvironmentOptions* environmentOptions,
     ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler* environmentCreatedHandler);
-
-static std::string EscapeJsonString(const std::string& input) {
-    std::ostringstream ss;
-    for (char c : input) {
-        if (c == '\\') ss << "\\\\";
-        else if (c == '"') ss << "\\\"";
-        else if (c == '\b') ss << "\\b";
-        else if (c == '\f') ss << "\\f";
-        else if (c == '\n') ss << "\\n";
-        else if (c == '\r') ss << "\\r";
-        else if (c == '\t') ss << "\\t";
-        else if ((unsigned char)c < 0x20) {
-            ss << "\\u00";
-            const char hex[] = "0123456789abcdef";
-            ss << hex[(c >> 4) & 0x0f] << hex[c & 0x0f];
-        } else {
-            ss << c;
-        }
-    }
-    return ss.str();
-}
 
 // Thread-safe dispatch to WebView2 via Windows message queue
 static void PostMessageToFrontend(const std::string& json) {
@@ -760,7 +730,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
     if (!g_hwnd) return 1;
 
     g_dropTarget = new DropTarget();
-    RegisterDropTargetRecursively(g_hwnd);
+    RegisterDragDrop(g_hwnd, g_dropTarget);
+    DragAcceptFiles(g_hwnd, TRUE);
 
     BOOL darkMode = TRUE;
     DwmSetWindowAttribute(g_hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &darkMode, sizeof(darkMode));
@@ -814,22 +785,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
                     ctl->get_CoreWebView2(&g_webview);
                     if (!g_webview) return E_FAIL;
                     g_webview->AddRef();
-
-                    ICoreWebView2Controller4* ctl4 = nullptr;
-                    if (SUCCEEDED(ctl->QueryInterface(IID_ICoreWebView2Controller4, (void**)&ctl4)) && ctl4) {
-                        ctl4->put_AllowExternalDrop(FALSE);
-                        ctl4->Release();
-                    }
-                    RegisterDropTargetRecursively(g_hwnd);
-
-                    EventRegistrationToken navToken;
-                    g_webview->add_NavigationCompleted(
-                        new NavigationCompletedHandler([](ICoreWebView2*, ICoreWebView2NavigationCompletedEventArgs*) -> HRESULT {
-                            RegisterDropTargetRecursively(g_hwnd);
-                            return S_OK;
-                        }),
-                        &navToken
-                    );
 
                     EventRegistrationToken token;
                     g_webview->add_WebMessageReceived(

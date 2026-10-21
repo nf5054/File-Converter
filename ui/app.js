@@ -841,13 +841,11 @@
     const arr = [];
     for (let i = 0; i < fileList.length; i++) {
       const f = fileList[i];
-      if (f.path) {
-        arr.push({
-          name: f.name,
-          path: f.path,
-          size: f.size
-        });
-      }
+      arr.push({
+        name: f.name,
+        path: f.path || f.name,
+        size: f.size || 0
+      });
     }
     if (arr.length > 0) {
       addSelectedFiles(arr);

@@ -1,5 +1,4 @@
-# Build output binaries
-*.exe
+# Build intermediate files
 *.o
 *.obj
 
