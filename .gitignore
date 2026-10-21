@@ -1,0 +1,15 @@
+# Build output binaries
+*.exe
+*.o
+*.obj
+
+# WebView2 runtime profile data
+WebViewData/
+ebwebview/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Release build working folder
+release/OmniConvert-v1.0.0-windows-x64/

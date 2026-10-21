@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniConvert</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- TOP BAR -->
+      <header class="top-bar">
+        <div class="brand">
+          <div class="brand-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <span class="brand-title">OmniConvert</span>
+            <span class="brand-tag">Offline Universal Converter & Compressor</span>
+          </div>
+        </div>
+
+        <div class="top-actions">
+          <button id="themeToggleBtn" class="icon-btn" title="Toggle Dark/Light Mode">
+            <svg id="themeIconDark" class="theme-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>
+            </svg>
+            <svg id="themeIconLight" class="theme-icon hidden" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 0 0-1.41 0 .996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 0 0-1.41 0 .996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 0 0 0-1.41.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36l-1.06 1.06a.996.996 0 0 0 0 1.41c.39.39 1.03.39 1.41 0l1.06-1.06c.39-.39.39-1.03 0-1.41s-1.02-.39-1.41 0z"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- VIEW 1: HOME PAGE -->
+      <section id="viewHome" class="view-page active">
+        <div class="view-content">
+
+          <!-- Mode Selector Pill: Convert vs Compress -->
+          <div class="mode-switcher-container">
+            <div class="mode-switcher-pill">
+              <button id="modeConvertBtn" class="mode-btn active">
+                <svg viewBox="0 0 24 24" class="btn-icon-small" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+                Convert Format
+              </button>
+              <button id="modeCompressBtn" class="mode-btn">
+                <svg viewBox="0 0 24 24" class="btn-icon-small" fill="currentColor"><path d="M4 9h16v2H4zm0 4h10v2H4zm0 4h14v2H4zM20 13l-4 4h3v4h2v-4h3z"/></svg>
+                Compress Files (PDF & Video)
+              </button>
+            </div>
+          </div>
+          
+          <!-- Dropzone Container -->
+          <div id="dropZone" class="dropzone-card">
+            <input type="file" id="fileInput" multiple style="display: none;">
+            <div class="dropzone-inner">
+              <div class="drop-icon-wrapper">
+                <svg viewBox="0 0 24 24" class="drop-svg" fill="currentColor">
+                  <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+                </svg>
+              </div>
+              <h2 id="dropTitle" class="drop-title">Drop your files here</h2>
+              <p id="dropSubtitle" class="drop-subtitle">Videos, Photos, Documents, PDFs — converted & compressed 100% offline</p>
+              
+              <div class="drop-actions">
+                <button id="browseFilesBtn" class="md-btn primary-btn">
+                  <svg viewBox="0 0 24 24" class="btn-icon" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                  Browse Files
+                </button>
+                <button id="browseFolderBtn" class="md-btn secondary-btn">
+                  <svg viewBox="0 0 24 24" class="btn-icon" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+                  Batch Folder
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selected Files / Conversion Setup Panel -->
+          <div id="selectionPanel" class="panel-card hidden">
+            <div class="panel-header">
+              <div class="panel-title-group">
+                <span class="panel-badge" id="categoryBadge">VIDEO</span>
+                <span class="panel-title" id="fileCountTitle">1 file selected</span>
+              </div>
+              <button id="clearSelectionBtn" class="text-btn" title="Remove all files">
+                <svg viewBox="0 0 24 24" class="btn-icon-small" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                Clear
+              </button>
+            </div>
+
+            <!-- List of files in queue -->
+            <div id="fileQueueList" class="file-queue-list"></div>
+
+            <!-- SECTION A: FORMAT CONVERSION MODE CONTROLS -->
+            <div id="convertControlsSection">
+              <div class="format-selection-group">
+                <label class="section-label">Convert To Format:</label>
+                <div id="formatChipsContainer" class="format-chips-container"></div>
+              </div>
+
+              <div class="quick-options-row">
+                <div class="option-field" id="qualityOptGroup">
+                  <label>Quality Preset:</label>
+                  <select id="qualitySelect" class="md-select">
+                    <option value="high">High Quality (Balanced)</option>
+                    <option value="original">Lossless / Original</option>
+                    <option value="small">Compact File Size</option>
+                    <option value="fast">Ultra Fast Conversion</option>
+                  </select>
+                </div>
+
+                <div class="option-field" id="extractAudioOpt">
+                  <label class="switch-container">
+                    <input type="checkbox" id="extractAudioCheck">
+                    <span class="switch-track"><span class="switch-thumb"></span></span>
+                    <span class="switch-label">Extract Audio (MP3/WAV)</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION B: COMPRESSION MODE CONTROLS -->
+            <div id="compressControlsSection" class="compress-controls-card hidden">
+              
+              <!-- PDF Compression Settings (PDF24 style: Quality % & PPI) -->
+              <div id="pdfCompressBox" class="compress-box">
+                <div class="compress-box-header">
+                  <div class="compress-box-title">
+                    <svg viewBox="0 0 24 24" class="btn-icon" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9.5 8.5h3v1.5h-3v-1.5zm0-3h3V10h-3V8.5zM14 17H7v-2h7v2zm3-4h-2V7h2v6z"/></svg>
+                    PDF Compression Settings (PDF24 Engine)
+                  </div>
+                  <span class="compress-hint">Downsamples images & deflates streams; vector text remains crystal sharp</span>
+                </div>
+
+                <div class="compress-grid">
+                  <!-- Quality % Slider -->
+                  <div class="slider-field">
+                    <div class="field-label-row">
+                      <label>Image Quality:</label>
+                      <span id="pdfQualityLabel" class="slider-value-badge">75%</span>
+                    </div>
+                    <input type="range" id="pdfQualitySlider" min="20" max="100" value="75" class="md-slider">
+                    <div class="slider-ticks">
+                      <span>20% (Max)</span>
+                      <span>50%</span>
+                      <span>75% (Standard)</span>
+                      <span>100% (High)</span>
+                    </div>
+                  </div>
+
+                  <!-- PPI (DPI) Selector -->
+                  <div class="ppi-field">
+                    <label>Target Resolution (PPI / DPI):</label>
+                    <div class="ppi-chips-row">
+                      <button class="ppi-chip" data-ppi="72">72 PPI <small>(Screen / Web)</small></button>
+                      <button class="ppi-chip" data-ppi="144">144 PPI <small>(E-Book)</small></button>
+                      <button class="ppi-chip active" data-ppi="150">150 PPI <small>(Standard)</small></button>
+                      <button class="ppi-chip" data-ppi="300">300 PPI <small>(Print)</small></button>
+                    </div>
+                    <div class="custom-ppi-row">
+                      <span>Custom PPI:</span>
+                      <input type="number" id="customPpiInput" min="30" max="600" value="150" class="md-input-number">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Video Compression Settings -->
+              <div id="videoCompressBox" class="compress-box">
+                <div class="compress-box-header">
+                  <div class="compress-box-title">
+                    <svg viewBox="0 0 24 24" class="btn-icon" fill="currentColor"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+                    Video Compression Settings
+                  </div>
+                  <span class="compress-hint">High efficiency H.264 / AAC encoding with smart CRF compression</span>
+                </div>
+
+                <div class="compress-grid">
+                  <div class="slider-field">
+                    <div class="field-label-row">
+                      <label>Compression Level / Target Quality:</label>
+                      <span id="videoQualityLabel" class="slider-value-badge">65% (Balanced)</span>
+                    </div>
+                    <input type="range" id="videoQualitySlider" min="15" max="95" value="65" class="md-slider">
+                    <div class="slider-ticks">
+                      <span>Max Compression</span>
+                      <span>Balanced (~60% smaller)</span>
+                      <span>High Quality</span>
+                    </div>
+                  </div>
+
+                  <div class="option-field">
+                    <label>Resolution Downscale:</label>
+                    <select id="videoResolutionSelect" class="md-select">
+                      <option value="original">Original (Preserve Resolution)</option>
+                      <option value="1080p">1080p Full HD</option>
+                      <option value="720p">720p HD (Recommended for size)</option>
+                      <option value="480p">480p SD (Ultra Compact)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Main Action Button -->
+            <div class="action-footer">
+              <button id="startConvertBtn" class="md-btn primary-btn convert-btn">
+                <svg viewBox="0 0 24 24" class="btn-icon" fill="currentColor">
+                  <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
+                </svg>
+                <span id="actionBtnText">Convert Now</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Progress / Status Card with Cancel Button -->
+          <div id="progressCard" class="panel-card hidden">
+            <div class="progress-header">
+              <div class="progress-title-group">
+                <div class="spinner-dot"></div>
+                <span id="progressTitle" class="panel-title">Processing...</span>
+              </div>
+              <span id="progressPercent" class="progress-percent-label">0%</span>
+            </div>
+
+            <div class="progress-bar-bg">
+              <div id="progressBarFill" class="progress-bar-fill"></div>
+            </div>
+
+            <div class="progress-footer-row">
+              <p id="progressDetail" class="progress-detail">Starting operation...</p>
+              
+              <!-- Cancel Button requested by user -->
+              <button id="cancelConvertBtn" class="md-btn ghost-btn text-danger cancel-btn" title="Cancel this operation">
+                <svg viewBox="0 0 24 24" class="btn-icon-small" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                Cancel
+              </button>
+            </div>
+
+            <div id="completionActions" class="completion-actions hidden">
+              <button id="openResultBtn" class="md-btn primary-btn">
+                <svg viewBox="0 0 24 24" class="btn-icon" fill="currentColor"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+                Open Result
+              </button>
+              <button id="showInFolderBtn" class="md-btn secondary-btn">
+                <svg viewBox="0 0 24 24" class="btn-icon" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+                Show in Explorer
+              </button>
+              <button id="newConversionBtn" class="md-btn ghost-btn">Done / Next</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- VIEW 2: RECENTS PAGE -->
+      <section id="viewRecents" class="view-page">
+        <div class="view-content">
+          <div class="recents-header">
+            <div>
+              <h2 class="page-title">Recent Activity</h2>
+              <p class="page-desc">History of converted & compressed files stored locally</p>
+            </div>
+            <button id="clearHistoryBtn" class="md-btn ghost-btn text-danger">
+              <svg viewBox="0 0 24 24" class="btn-icon-small" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+              Clear History
+            </button>
+          </div>
+
+          <div id="recentsList" class="recents-list"></div>
+
+          <div id="emptyRecents" class="empty-state">
+            <svg viewBox="0 0 24 24" class="empty-svg" fill="currentColor">
+              <path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+            </svg>
+            <h3>No activity yet</h3>
+            <p>Converted and compressed files will appear here.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: SETTINGS PAGE -->
+      <section id="viewSettings" class="view-page">
+        <div class="view-content">
+          <div class="settings-header">
+            <h2 class="page-title">Settings</h2>
+            <p class="page-desc">Customize format availability, startup behavior, and system options</p>
+          </div>
+
+          <!-- Format Availability Section with Tabs -->
+          <div class="settings-card">
+            <h3 class="card-section-title">Output Format Availability</h3>
+            <p class="card-section-desc">Select which formats appear in your conversion dropdowns</p>
+            
+            <div class="format-tabs-bar">
+              <button class="fmt-tab-btn active" data-fmt-tab="fmtVideos">
+                <svg viewBox="0 0 24 24" class="btn-icon-small" fill="currentColor"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+                Videos
+              </button>
+              <button class="fmt-tab-btn" data-fmt-tab="fmtPhotos">
+                <svg viewBox="0 0 24 24" class="btn-icon-small" fill="currentColor"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                Photos
+              </button>
+              <button class="fmt-tab-btn" data-fmt-tab="fmtDocs">
+                <svg viewBox="0 0 24 24" class="btn-icon-small" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                Docs
+              </button>
+            </div>
+
+            <div id="fmtVideos" class="fmt-tab-content active">
+              <div class="checkbox-grid" id="videoFormatsGrid"></div>
+            </div>
+
+            <div id="fmtPhotos" class="fmt-tab-content">
+              <div class="checkbox-grid" id="photoFormatsGrid"></div>
+            </div>
+
+            <div id="fmtDocs" class="fmt-tab-content">
+              <div class="checkbox-grid" id="docFormatsGrid"></div>
+            </div>
+          </div>
+
+          <!-- Windows System Integration Section -->
+          <div class="settings-card">
+            <h3 class="card-section-title">Windows Integration</h3>
+            
+            <div class="setting-item-row">
+              <div class="setting-text">
+                <div class="setting-title">Launch on Windows Startup</div>
+                <div class="setting-subtitle">Automatically start OmniConvert silently when Windows boots</div>
+              </div>
+              <label class="switch-container">
+                <input type="checkbox" id="startupSwitch">
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+              </label>
+            </div>
+
+            <div class="setting-item-row">
+              <div class="setting-text">
+                <div class="setting-title">File Explorer Right-Click Menu</div>
+                <div class="setting-subtitle">Show "Convert with OmniConvert" when right-clicking folders and files</div>
+              </div>
+              <label class="switch-container">
+                <input type="checkbox" id="contextMenuSwitch">
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Advanced Preferences -->
+          <div class="settings-card">
+            <h3 class="card-section-title">Advanced Preferences</h3>
+            
+            <div class="setting-item-row">
+              <div class="setting-text">
+                <div class="setting-title">Hardware Acceleration</div>
+                <div class="setting-subtitle">Auto-detect GPU (NVIDIA NVENC, Intel QSV, AMD AMF) for ultra-fast encoding</div>
+              </div>
+              <label class="switch-container">
+                <input type="checkbox" id="hardwareAccelSwitch" checked>
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+              </label>
+            </div>
+
+            <div class="setting-item-row">
+              <div class="setting-text">
+                <div class="setting-title">Operation Completion Chime</div>
+                <div class="setting-subtitle">Play a gentle tone when files are ready</div>
+              </div>
+              <label class="switch-container">
+                <input type="checkbox" id="soundChimeSwitch" checked>
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+              </label>
+            </div>
+
+            <div class="setting-item-row">
+              <div class="setting-text">
+                <div class="setting-title">Default Output Destination</div>
+                <div class="setting-subtitle">Where to place converted / compressed files</div>
+              </div>
+              <select id="outputDestinationSelect" class="md-select">
+                <option value="same">Same folder as input file</option>
+                <option value="downloads">User Downloads folder</option>
+                <option value="desktop">Desktop</option>
+              </select>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- RIGHT-SIDE COLLAPSIBLE NAVIGATION RAIL -->
+    <aside id="navRail" class="nav-rail">
+      <button id="railToggleBtn" class="rail-toggle-btn" title="Toggle Navigation Bar">
+        <svg id="railChevronIcon" class="toggle-svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+        </svg>
+      </button>
+
+      <nav class="nav-tabs-group">
+        
+        <!-- Tab 1: Home -->
+        <button class="nav-tab active" data-view="viewHome" title="Home">
+          <div class="nav-icon-container">
+            <svg viewBox="0 0 24 24" class="nav-svg" fill="currentColor">
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+          </div>
+          <span class="nav-label">Home</span>
+        </button>
+
+        <!-- Tab 2: Recents -->
+        <button class="nav-tab" data-view="viewRecents" title="Recents">
+          <div class="nav-icon-container">
+            <svg viewBox="0 0 24 24" class="nav-svg" fill="currentColor">
+              <path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+            </svg>
+          </div>
+          <span class="nav-label">Recents</span>
+        </button>
+
+        <!-- Tab 3: Settings -->
+        <button class="nav-tab" data-view="viewSettings" title="Settings">
+          <div class="nav-icon-container">
+            <svg viewBox="0 0 24 24" class="nav-svg" fill="currentColor">
+              <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+            </svg>
+          </div>
+          <span class="nav-label">Settings</span>
+        </button>
+
+      </nav>
+
+      <div class="rail-footer">
+        <div class="offline-pill" title="Fully Offline & Private">
+          <span class="status-dot"></span>
+          <span class="offline-text">Offline</span>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
